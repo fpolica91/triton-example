@@ -1,0 +1,13 @@
+{
+    "model": "/data0/MiniMax-M2.5-FP8-INT4-AWQ",
+    "served_model_name": "MiniMax-M2.5",
+    "trust_remote_code": true,
+    "tensor_parallel_size": 8,
+    "gpu_memory_utilization": 0.92,
+    "max_model_len": 32768,
+    "max_num_seqs": 32,
+    "enable_auto_tool_choice": true,
+    "tool_call_parser": "minimax_m2",
+    "reasoning_parser": "minimax_m2",
+    "disable_log_stats": false
+}
