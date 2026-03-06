@@ -5,6 +5,13 @@ model_transaction_policy {
   decoupled: True
 }
 
+instance_group [
+  {
+    count: 1
+    kind: KIND_MODEL
+  }
+]
+
 input [
   { name: "text_input", data_type: TYPE_STRING, dims: [ 1 ] },
   { name: "stream", data_type: TYPE_BOOL, dims: [ 1 ] },
