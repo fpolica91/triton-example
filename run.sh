@@ -6,7 +6,7 @@ docker run --gpus all --net=host --rm \
   -e PYTORCH_ALLOC_CONF=expandable_segments:True,max_split_size_mb:512 \
   -v /data0:/data0 \
   -v /home/ubuntu/triton-serve-inference/model_repository:/models \
-  nvcr.io/nvidia/tritonserver:26.02-vllm-python-py3 \
+  triton-vllm-minimax:latest \
   tritonserver \
     --model-repository /models \
     --http-port 8002 \
