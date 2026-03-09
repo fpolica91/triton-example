@@ -2,6 +2,9 @@
 export PYTORCH_ALLOC_CONF=expandable_segments:True,max_split_size_mb:512
 export PYTHONPATH=/home/ubuntu/.local/lib/python3.12/site-packages
 
+# vLLM API Key (set this to secure the endpoint)
+export VLLM_API_KEY="${VLLM_API_KEY:-your-api-key-here}"
+
 nohup /usr/bin/python3 -m vllm.entrypoints.openai.api_server \
   --model /data0/MiniMax-M2.5-FP8-INT4-AWQ \
   --served-model-name minimax-m2.5 \
@@ -15,6 +18,7 @@ nohup /usr/bin/python3 -m vllm.entrypoints.openai.api_server \
   --enable-auto-tool-choice \
   --tool-call-parser minimax_m2 \
   --reasoning-parser minimax_m2 \
+  --api-key "$VLLM_API_KEY" \
   > /home/ubuntu/triton-serve-inference/vllm.log 2>&1 &
 
 echo "vLLM started in background. PID: $!"
