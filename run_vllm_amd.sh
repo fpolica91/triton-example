@@ -1,6 +1,5 @@
 #!/bin/bash
-# MiniMax-M2.5 vLLM server for AMD MI300X
-# Based on official vLLM deploy guide: https://huggingface.co/MiniMaxAI/MiniMax-M2.5/blob/main/docs/vllm_deploy_guide.md
+# GLM-5-FP8 vLLM server for AMD MI300X
 # With AMD ROCm workarounds for missing iommu=pt kernel parameter
 
 # --- AMD ROCm workarounds (remove these if iommu=pt is added to kernel cmdline) ---
@@ -11,33 +10,35 @@ export VLLM_WORKER_MULTIPROC_METHOD=spawn
 export RCCL_MSCCL_ENABLE=0
 export MSCCL_ENABLE=0
 export NCCL_MSCCLPP_ENABLE=0
+export VLLM_ROCM_USE_AITER=1
 
 # --- Performance tuning ---
 export SAFETENSORS_FAST_GPU=1
 export PYTORCH_ALLOC_CONF=expandable_segments:True,max_split_size_mb:512
 
-MODEL_PATH="/data0/huggingface/MiniMax-M2.5"
+MODEL_PATH="/data0/huggingface/GLM-5-FP8"
 LOG_FILE="/home/ubuntu/triton-example/vllm.log"
 PORT=8002
 
-echo "Starting vLLM server for MiniMax-M2.5 on AMD MI300X..."
+echo "Starting vLLM server for GLM-5-FP8 on AMD MI300X..."
 echo "Model: ${MODEL_PATH}"
 echo "Port: ${PORT}"
 echo "Log: ${LOG_FILE}"
 
 nohup vllm serve "${MODEL_PATH}" \
-  --served-model-name minimax-m2.5 \
+  --served-model-name glm-5 \
   --trust-remote-code \
-  --tensor-parallel-size 4 \
+  --tensor-parallel-size 8 \
   --gpu-memory-utilization 0.92 \
   --max-model-len 131072 \
   --max-num-seqs 32 \
   --host 0.0.0.0 \
   --port "${PORT}" \
   --enable-auto-tool-choice \
-  --tool-call-parser minimax_m2 \
-  --reasoning-parser minimax_m2 \
+  --tool-call-parser glm47 \
+  --reasoning-parser glm45 \
   --disable-custom-all-reduce \
+  --block-size 1 \
   --enforce-eager \
   > "${LOG_FILE}" 2>&1 &
 
