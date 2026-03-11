@@ -1,4 +1,42 @@
 services:
+  sglang-glm5:
+    image: rocm/sgl-dev:v0.5.8.post1-rocm720-mi30x-20260219
+    container_name: sglang-glm5
+    restart: unless-stopped
+    network_mode: host
+    ipc: host
+    shm_size: 64g
+    cap_add:
+      - SYS_PTRACE
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    group_add:
+      - video
+      - render
+    volumes:
+      - /data0:/data0
+    environment:
+      - MODEL_PATH=/data0/huggingface/GLM-5-FP8
+      - PORT=8002
+    entrypoint: >
+      bash -c "
+        cd /sgl-workspace/aiter && pip install -e . -q &&
+        pip install 'transformers>=5.3.0' -q &&
+        python -m sglang.launch_server
+          --model $$MODEL_PATH
+          --tp 8
+          --trust-remote-code
+          --nsa-prefill-backend tilelang
+          --nsa-decode-backend tilelang
+          --chunked-prefill-size 131072
+          --mem-fraction-static 0.80
+          --watchdog-timeout 1200
+          --served-model-name glm-5-fp8
+          --host 0.0.0.0
+          --port $$PORT
+      "
+
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
