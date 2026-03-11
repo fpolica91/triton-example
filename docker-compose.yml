@@ -40,6 +40,7 @@ services:
           --nsa-decode-backend tilelang
           --chunked-prefill-size 131072
           --mem-fraction-static 0.80
+          --max-total-tokens 131072
           --watchdog-timeout 300
           --soft-watchdog-timeout 120
           --served-model-name glm-5-fp8
