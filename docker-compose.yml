@@ -33,6 +33,8 @@ services:
           --mem-fraction-static 0.80
           --watchdog-timeout 1200
           --served-model-name glm-5-fp8
+          --tool-call-parser glm47
+          --reasoning-parser glm45
           --host 0.0.0.0
           --port $$PORT
       "

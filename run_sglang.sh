@@ -29,7 +29,7 @@ docker rm -f sglang-glm5 2>/dev/null || true
 
 docker run -d \
   --name sglang-glm5 \
-  --restart unless-stopped \
+  --restart always \
   --network host \
   --ipc host \
   --shm-size 64g \
@@ -38,9 +38,17 @@ docker run -d \
   --device /dev/dri \
   --group-add video \
   --group-add render \
+  --health-cmd "curl -sf http://localhost:${PORT}/health || exit 1" \
+  --health-interval 30s \
+  --health-timeout 25s \
+  --health-retries 3 \
+  --health-start-period 600s \
   -v /data0:/data0 \
   -e MODEL_PATH="${MODEL_PATH}" \
   -e PORT="${PORT}" \
+  -e SGLANG_HEALTH_CHECK_TIMEOUT=30 \
+  -e SGLANG_REQ_RUNNING_TIMEOUT=600 \
+  -e SGLANG_REQ_WAITING_TIMEOUT=120 \
   rocm/sgl-dev:v0.5.8.post1-rocm720-mi30x-20260219 \
   bash -c "
     cd /sgl-workspace/aiter && pip install -e . -q &&
@@ -53,8 +61,11 @@ docker run -d \
       --nsa-decode-backend tilelang \
       --chunked-prefill-size 131072 \
       --mem-fraction-static 0.80 \
-      --watchdog-timeout 1200 \
+      --watchdog-timeout 300 \
+      --soft-watchdog-timeout 120 \
       --served-model-name glm-5-fp8 \
+      --tool-call-parser glm47 \
+      --reasoning-parser glm45 \
       --host 0.0.0.0 \
       --port \$PORT
   "
