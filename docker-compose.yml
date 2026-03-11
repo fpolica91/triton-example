@@ -2,7 +2,7 @@ services:
   sglang-glm5:
     image: rocm/sgl-dev:v0.5.8.post1-rocm720-mi30x-20260219
     container_name: sglang-glm5
-    restart: unless-stopped
+    restart: always
     network_mode: host
     ipc: host
     shm_size: 64g
@@ -19,6 +19,15 @@ services:
     environment:
       - MODEL_PATH=/data0/huggingface/GLM-5-FP8
       - PORT=8002
+      - SGLANG_HEALTH_CHECK_TIMEOUT=30
+      - SGLANG_REQ_RUNNING_TIMEOUT=600
+      - SGLANG_REQ_WAITING_TIMEOUT=120
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8002/health || exit 1"]
+      interval: 30s
+      timeout: 25s
+      retries: 3
+      start_period: 600s
     entrypoint: >
       bash -c "
         cd /sgl-workspace/aiter && pip install -e . -q &&
@@ -31,7 +40,8 @@ services:
           --nsa-decode-backend tilelang
           --chunked-prefill-size 131072
           --mem-fraction-static 0.80
-          --watchdog-timeout 1200
+          --watchdog-timeout 300
+          --soft-watchdog-timeout 120
           --served-model-name glm-5-fp8
           --tool-call-parser glm47
           --reasoning-parser glm45
